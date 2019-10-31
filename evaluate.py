@@ -100,7 +100,10 @@ def eval_one_epoch(sess, ops, num_votes=1, topk=1):
     for fn in range(len(TEST_FILES)):
         log_string('----'+str(fn)+'----')
         current_data, current_label = provider.loadDataFile(TEST_FILES[fn])
-        current_data = current_data[:,0:NUM_POINT,:]
+        current_data = current_data[:,0:512,:]
+        zero = np.zeros((current_data.shape[0], 512, current_data.shape[2]))
+        current_data = np.concatenate((current_data, zero), axis=1)
+        current_data, current_label, _ = provider.shuffle_data(current_data, np.squeeze(current_label))
         current_label = np.squeeze(current_label)
         print(current_data.shape)
         

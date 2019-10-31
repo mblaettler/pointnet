@@ -90,7 +90,9 @@ def eval_one_epoch(sess, ops):
     is_training = False
 
     current_data, current_label = provider.loadDataFile(DATA_FILE)
-    current_data = current_data[:, 0:NUM_POINT, :]
+    current_data = current_data[:, 0:512, :]
+    zero = np.zeros((current_data.shape[0], 512, current_data.shape[2]))
+    current_data = np.concatenate((current_data, zero), axis=1)
     current_label = np.squeeze(current_label)
     print(current_data.shape)
 
