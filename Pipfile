@@ -11,6 +11,7 @@ pillow = "*"
 plyfile = "*"
 matplotlib = "*"
 imageio = "*"
+pandas = "*"
 
 [dev-packages]
 
