@@ -6,6 +6,11 @@ name = "pypi"
 [packages]
 numpy = "*"
 tensorflow-gpu = "==1.14"
+scipy = "*"
+pillow = "*"
+plyfile = "*"
+matplotlib = "*"
+imageio = "*"
 
 [dev-packages]
 
