@@ -14,7 +14,6 @@ sys.path.append(os.path.join(BASE_DIR, 'utils'))
 import provider
 import pc_util
 import imageio
-from random import randint
 
 
 parser = argparse.ArgumentParser()
@@ -101,7 +100,7 @@ def eval_one_epoch(sess, ops, num_votes=1, topk=1):
     for fn in range(len(TEST_FILES)):
         log_string('----'+str(fn)+'----')
         current_data, current_label = provider.loadDataFile(TEST_FILES[fn])
-        size = randint(600, 900)
+        size = 512
         current_data = current_data[:, 0:size, :]
         rand_idxs = np.random.randint(0, size, size=NUM_POINT - size)
         sampled = current_data[:, rand_idxs, :]

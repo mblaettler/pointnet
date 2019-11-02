@@ -7,7 +7,6 @@ import socket
 import importlib
 import os
 import sys
-from random import randint
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(BASE_DIR)
 sys.path.append(os.path.join(BASE_DIR, 'models'))
@@ -179,7 +178,7 @@ def train_one_epoch(sess, ops, train_writer):
     for fn in range(len(TRAIN_FILES)):
         log_string('----' + str(fn) + '-----')
         current_data, current_label = provider.loadDataFile(TRAIN_FILES[train_file_idxs[fn]])
-        size = randint(600, 900)
+        size = 512
         current_data = current_data[:, 0:size, :]
         rand_idxs = np.random.randint(0, size, size=NUM_POINT-size)
         sampled = current_data[:, rand_idxs, :]
@@ -229,7 +228,7 @@ def eval_one_epoch(sess, ops, test_writer):
     for fn in range(len(TEST_FILES)):
         log_string('----' + str(fn) + '-----')
         current_data, current_label = provider.loadDataFile(TEST_FILES[fn])
-        size = randint(600, 900)
+        size = 512
         current_data = current_data[:, 0:size, :]
         rand_idxs = np.random.randint(0, size, size=NUM_POINT - size)
         sampled = current_data[:, rand_idxs, :]

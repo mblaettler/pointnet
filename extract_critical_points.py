@@ -6,7 +6,6 @@ import importlib
 import os
 import sys
 import pandas as pd
-from random import randint
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(BASE_DIR)
@@ -91,7 +90,7 @@ def eval_one_epoch(sess, ops):
     is_training = False
 
     current_data, current_label = provider.loadDataFile(DATA_FILE)
-    size = randint(600, 900)
+    size = 512
     current_data = current_data[:, 0:size, :]
     rand_idxs = np.random.randint(0, size, size=NUM_POINT - size)
     sampled = current_data[:, rand_idxs, :]
