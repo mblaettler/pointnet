@@ -11,14 +11,14 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(BASE_DIR)
 sys.path.append(os.path.join(BASE_DIR, 'models'))
 sys.path.append(os.path.join(BASE_DIR, 'utils'))
-import provider
+import PCProvider as provider
+# import provider
 import tf_util
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--gpu', type=int, default=0, help='GPU to use [default: GPU 0]')
 parser.add_argument('--model', default='pointnet_cls', help='Model name: pointnet_cls or pointnet_cls_basic [default: pointnet_cls]')
 parser.add_argument('--log_dir', default='log', help='Log dir [default: log]')
-parser.add_argument('--num_point', type=int, default=1024, help='Point Number [256/512/1024/2048] [default: 1024]')
 parser.add_argument('--max_epoch', type=int, default=250, help='Epoch to run [default: 250]')
 parser.add_argument('--batch_size', type=int, default=32, help='Batch Size during training [default: 32]')
 parser.add_argument('--learning_rate', type=float, default=0.001, help='Initial learning rate [default: 0.001]')
@@ -30,7 +30,8 @@ FLAGS = parser.parse_args()
 
 
 BATCH_SIZE = FLAGS.batch_size
-NUM_POINT = FLAGS.num_point
+# NUM_POINT = FLAGS.num_point
+NUM_POINT = 67000
 MAX_EPOCH = FLAGS.max_epoch
 BASE_LEARNING_RATE = FLAGS.learning_rate
 GPU_INDEX = FLAGS.gpu
@@ -60,9 +61,9 @@ HOSTNAME = socket.gethostname()
 
 # ModelNet40 official train/test split
 TRAIN_FILES = provider.getDataFiles( \
-    os.path.join(BASE_DIR, 'data/modelnet40_ply_hdf5_2048/train_files.txt'))
+    os.path.join(BASE_DIR, 'data/SVHD/train_files.txt'))
 TEST_FILES = provider.getDataFiles(\
-    os.path.join(BASE_DIR, 'data/modelnet40_ply_hdf5_2048/test_files.txt'))
+    os.path.join(BASE_DIR, 'data/SVHD/test_files.txt'))
 
 def log_string(out_str):
     LOG_FOUT.write(out_str+'\n')
@@ -179,7 +180,6 @@ def train_one_epoch(sess, ops, train_writer):
     for fn in range(len(TRAIN_FILES)):
         log_string('----' + str(fn) + '-----')
         current_data, current_label = provider.loadDataFile(TRAIN_FILES[train_file_idxs[fn]])
-        current_data = current_data[:,0:NUM_POINT,:]
         current_data, current_label, _ = provider.shuffle_data(current_data, np.squeeze(current_label))            
         current_label = np.squeeze(current_label)
         
