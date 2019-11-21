@@ -6,7 +6,7 @@ import pandas as pd
 DATA_DIR = "/path/to/data"
 META_DIR = "/path/to/metadata"
 
-NUM_POINT = 67000
+NUM_POINT = 4096
 
 CLASSES = {
     "ArticTruck": 0,
@@ -123,9 +123,15 @@ def load_asc(filename: str):
     data = np.vstack((x, y, z)).T
 
     size = len(x)
-    rand_idxs = np.random.randint(0, size, size=NUM_POINT - size)
-    sampled = data[rand_idxs, :]
-    data = np.concatenate((data, sampled), axis=0)
+
+    if size > NUM_POINT:
+        print(f"Got size {size} for {filename}")
+        rand_idxs = np.random.choice(size, NUM_POINT, replace=False)
+        data = data[rand_idxs, :]
+    else:
+        rand_idxs = np.random.randint(0, size, size=NUM_POINT - size)
+        sampled = data[rand_idxs, :]
+        data = np.concatenate((data, sampled), axis=0)
 
     return data, CLASSES[class_lbl]
 
