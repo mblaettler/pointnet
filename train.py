@@ -51,7 +51,6 @@ LOG_FOUT = open(os.path.join(LOG_DIR, 'log_train.txt'), 'w')
 LOG_FOUT.write(str(FLAGS)+'\n')
 
 MAX_NUM_POINT = 4096
-NUM_CLASSES = 26
 
 BN_INIT_DECAY = 0.5
 BN_DECAY_DECAY_RATE = 0.5
@@ -62,8 +61,10 @@ HOSTNAME = socket.gethostname()
 
 if FLAGS.tic_data:
     folder = "TIC"
+    NUM_CLASSES = 21
 else:
     folder = "FPS"
+    NUM_CLASSES = 24
 
 data_path = f"data/SVHD/{folder}"
 TRAIN_FILES = provider.getDataFiles( \

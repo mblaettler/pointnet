@@ -32,9 +32,7 @@ CLASSES = {
     "Phantom": 20,
     "ArticVan": 21,
     "TruckCarTransporterEmpty": 22,
-    "TruckFlatBed": 23,
-    "TruckWithTrailerFlatBed": 24,
-    "VanDeliveryWithTrailer": 25
+    "VanDeliveryWithTrailer": 23
 }
 
 metadata_cache = {}

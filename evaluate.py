@@ -24,11 +24,12 @@ parser.add_argument('--num_point', type=int, default=1024, help='Point Number [2
 parser.add_argument('--model_path', default='log/model.ckpt', help='model checkpoint file path [default: log/model.ckpt]')
 parser.add_argument('--dump_dir', default='dump', help='dump folder path [dump]')
 parser.add_argument('--visu', action='store_true', help='Whether to dump image for error case [default: False]')
+parser.add_argument('--tic-data', action="store_true", help="If flag is set TIC data will be loaded (otherwise FPS)")
 FLAGS = parser.parse_args()
 
 
 BATCH_SIZE = FLAGS.batch_size
-NUM_POINT = FLAGS.num_point
+NUM_POINT = 4096
 MODEL_PATH = FLAGS.model_path
 GPU_INDEX = FLAGS.gpu
 MODEL = importlib.import_module(FLAGS.model) # import network module
@@ -37,17 +38,26 @@ if not os.path.exists(DUMP_DIR): os.mkdir(DUMP_DIR)
 LOG_FOUT = open(os.path.join(DUMP_DIR, 'log_evaluate.txt'), 'w')
 LOG_FOUT.write(str(FLAGS)+'\n')
 
-NUM_CLASSES = 40
-SHAPE_NAMES = [line.rstrip() for line in \
-    open(os.path.join(BASE_DIR, 'data/modelnet40_ply_hdf5_2048/shape_names.txt'))] 
+if FLAGS.tic_data:
+    NUM_CLASSES = 21
+else:
+    NUM_CLASSES = 24
+
+SHAPE_NAMES = list(provider.CLASSES.keys())
 
 HOSTNAME = socket.gethostname()
 
-# ModelNet40 official train/test split
+if FLAGS.tic_data:
+    folder = "TIC"
+    SHAPE_NAMES = SHAPE_NAMES[:-3]
+else:
+    folder = "FPS"
+
+data_path = f"data/SVHD/{folder}"
 TRAIN_FILES = provider.getDataFiles( \
-    os.path.join(BASE_DIR, 'data/modelnet40_ply_hdf5_2048/train_files.txt'))
+    os.path.join(BASE_DIR, data_path, 'train_files.txt'))
 TEST_FILES = provider.getDataFiles(\
-    os.path.join(BASE_DIR, 'data/modelnet40_ply_hdf5_2048/test_files.txt'))
+    os.path.join(BASE_DIR, data_path, 'test_files.txt'))
 
 def log_string(out_str):
     LOG_FOUT.write(out_str+'\n')
@@ -99,6 +109,7 @@ def eval_one_epoch(sess, ops, num_votes=1, topk=1):
     fout = open(os.path.join(DUMP_DIR, 'pred_label.txt'), 'w')
     for fn in range(len(TEST_FILES)):
         log_string('----'+str(fn)+'----')
+        file_names = [line.strip() for line in open(TEST_FILES[fn])]
         current_data, current_label = provider.loadDataFile(TEST_FILES[fn])
         current_data = current_data[:,0:NUM_POINT,:]
         current_label = np.squeeze(current_label)
@@ -145,7 +156,7 @@ def eval_one_epoch(sess, ops, num_votes=1, topk=1):
                 l = current_label[i]
                 total_seen_class[l] += 1
                 total_correct_class[l] += (pred_val[i-start_idx] == l)
-                fout.write('%d, %d\n' % (pred_val[i-start_idx], l))
+                fout.write('%s, %d, %d\n' % (file_names[i], pred_val[i-start_idx], l))
                 
                 if pred_val[i-start_idx] != l and FLAGS.visu: # ERROR CASE, DUMP!
                     img_filename = '%d_label_%s_pred_%s.jpg' % (error_cnt, SHAPE_NAMES[l],
