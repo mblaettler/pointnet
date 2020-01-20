@@ -32,7 +32,7 @@ FLAGS = parser.parse_args()
 
 
 BATCH_SIZE = FLAGS.batch_size
-NUM_POINT = 1024
+NUM_POINT = 750
 MAX_EPOCH = FLAGS.max_epoch
 BASE_LEARNING_RATE = FLAGS.learning_rate
 GPU_INDEX = FLAGS.gpu
@@ -57,6 +57,8 @@ BN_INIT_DECAY = 0.5
 BN_DECAY_DECAY_RATE = 0.5
 BN_DECAY_DECAY_STEP = float(DECAY_STEP)
 BN_DECAY_CLIP = 0.99
+
+DOWNSAMPLED_SIZE = 512
 
 HOSTNAME = socket.gethostname()
 
@@ -184,9 +186,8 @@ def train_one_epoch(sess, ops, train_writer, epoch):
     for fn in range(len(TRAIN_FILES)):
         log_string('----' + str(fn) + '-----')
         current_data, current_label = provider.loadDataFile(TRAIN_FILES[train_file_idxs[fn]])
-        size = randint(600, 900)
-        current_data = current_data[:, 0:size, :]
-        rand_idxs = np.random.randint(0, size, size=NUM_POINT-size)
+        current_data = current_data[:, 0:DOWNSAMPLED_SIZE, :]
+        rand_idxs = np.random.randint(0, DOWNSAMPLED_SIZE, size=NUM_POINT-DOWNSAMPLED_SIZE)
         sampled = current_data[:, rand_idxs, :]
         current_data = np.concatenate((current_data, sampled), axis=1)
         current_data, current_label, _ = provider.shuffle_data(current_data, np.squeeze(current_label))
@@ -244,9 +245,8 @@ def eval_one_epoch(sess, ops, test_writer, epoch):
     for fn in range(len(TEST_FILES)):
         log_string('----' + str(fn) + '-----')
         current_data, current_label = provider.loadDataFile(TEST_FILES[fn])
-        size = randint(600, 900)
-        current_data = current_data[:, 0:size, :]
-        rand_idxs = np.random.randint(0, size, size=NUM_POINT - size)
+        current_data = current_data[:, 0:DOWNSAMPLED_SIZE, :]
+        rand_idxs = np.random.randint(0, DOWNSAMPLED_SIZE, size=NUM_POINT-DOWNSAMPLED_SIZE)
         sampled = current_data[:, rand_idxs, :]
         current_data = np.concatenate((current_data, sampled), axis=1)
         current_label = np.squeeze(current_label)

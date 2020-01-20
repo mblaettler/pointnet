@@ -21,7 +21,6 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--gpu', type=int, default=0, help='GPU to use [default: GPU 0]')
 parser.add_argument('--model', default='pointnet_cls', help='Model name: pointnet_cls or pointnet_cls_basic [default: pointnet_cls]')
 parser.add_argument('--batch_size', type=int, default=4, help='Batch Size during training [default: 1]')
-parser.add_argument('--num_point', type=int, default=1024, help='Point Number [256/512/1024/2048] [default: 1024]')
 parser.add_argument('--model_path', default='log/model.ckpt', help='model checkpoint file path [default: log/model.ckpt]')
 parser.add_argument('--dump_dir', default='dump', help='dump folder path [dump]')
 parser.add_argument('--visu', action='store_true', help='Whether to dump image for error case [default: False]')
@@ -29,7 +28,7 @@ FLAGS = parser.parse_args()
 
 
 BATCH_SIZE = FLAGS.batch_size
-NUM_POINT = FLAGS.num_point
+NUM_POINT = 750
 MODEL_PATH = FLAGS.model_path
 GPU_INDEX = FLAGS.gpu
 MODEL = importlib.import_module(FLAGS.model) # import network module
@@ -41,6 +40,8 @@ LOG_FOUT.write(str(FLAGS)+'\n')
 NUM_CLASSES = 40
 SHAPE_NAMES = [line.rstrip() for line in \
     open(os.path.join(BASE_DIR, 'data/modelnet40_ply_hdf5_2048/shape_names.txt'))] 
+
+DOWNSAMPLED_SIZE = 512
 
 HOSTNAME = socket.gethostname()
 
@@ -102,8 +103,8 @@ def eval_one_epoch(sess, ops, num_votes=1, topk=1):
         log_string('----'+str(fn)+'----')
         current_data, current_label = provider.loadDataFile(TEST_FILES[fn])
         size = randint(600, 900)
-        current_data = current_data[:, 0:size, :]
-        rand_idxs = np.random.randint(0, size, size=NUM_POINT - size)
+        current_data = current_data[:, 0:DOWNSAMPLED_SIZE, :]
+        rand_idxs = np.random.randint(0, DOWNSAMPLED_SIZE, size=NUM_POINT-DOWNSAMPLED_SIZE)
         sampled = current_data[:, rand_idxs, :]
         current_data = np.concatenate((current_data, sampled), axis=1)
         current_data, current_label, _ = provider.shuffle_data(current_data, np.squeeze(current_label))
